@@ -1,4 +1,5 @@
 // Your Todo List App implementation will go here!
+//add to do list array
 
 // grab the form - start from chrome dev tools to do this
 const todoFormEl = document.querySelector("#todo-form");
@@ -10,11 +11,17 @@ const errorMessage = document.querySelector("#error-message");
 const addButton = document.querySelector(".add-btn");
 //Grab the input field
 const todoInput = document.querySelector("#todo-input");
-//add to do list array
 let todos = [];
 
+document.addEventListener("DOMContentLoaded", function () {
+  loadTodosFromStorage();
+
+  // Form submission handling
+  todoFormEl.addEventListener("submit", handleFormSubmit);
+});
+
 // add event listener to the form
-todoFormEl.addEventListener("submit", function (event) {
+function handleFormSubmit(event) {
   const li = document.createElement("li");
   const todoText = document.createElement("span");
   const liCheckbox = document.createElement("input");
@@ -44,7 +51,7 @@ todoFormEl.addEventListener("submit", function (event) {
   li.appendChild(liCheckbox);
   li.appendChild(todoText);
   li.appendChild(liDeleteButton);
-
+  li.setAttribute("data-id", todoItemObject.id);
   todoInput.value = "";
   liCheckbox.addEventListener("change", function () {
     if (liCheckbox.checked == true) {
@@ -62,7 +69,23 @@ todoFormEl.addEventListener("submit", function (event) {
   todos.push(todoItemObject);
 
   console.log(event.target);
+  saveTodosToStorage();
+
   event.preventDefault();
-});
-console.log(JSON.stringify(todos));
-localStorage.setItem(todoList, JSON.stringify(todos));
+}
+
+function saveTodosToStorage() {
+  // Convert todos array to JSON string and save to browser storage
+  localStorage.setItem("todos", JSON.stringify(todos));
+}
+
+function loadTodosFromStorage() {
+  // Try to get the saved todos from browser storage
+  const storedTodos = localStorage.getItem("todos");
+
+  // Only try to parse if we actually found saved data
+  if (storedTodos) {
+    // Convert the JSON string back into an array
+    todos = JSON.parse(storedTodos);
+  }
+}
