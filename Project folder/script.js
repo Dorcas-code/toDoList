@@ -11,17 +11,18 @@ const errorMessage = document.querySelector("#error-message");
 const addButton = document.querySelector(".add-btn");
 //Grab the input field
 const todoInput = document.querySelector("#todo-input");
-let todos = [];
+//grab the error message element
 
 document.addEventListener("DOMContentLoaded", function () {
   loadTodosFromStorage();
 
-  // Form submission handling
+  // Form submission and eventhandling
   todoFormEl.addEventListener("submit", handleFormSubmit);
 });
 
 // add event listener to the form
 function handleFormSubmit(event) {
+  event.preventDefault();
   const li = document.createElement("li");
   const todoText = document.createElement("span");
   const liCheckbox = document.createElement("input");
@@ -43,15 +44,40 @@ function handleFormSubmit(event) {
   li.classList.add("todo-item");
   todoText.classList.add("todo-text");
   todoText.textContent = todoInput.value;
+  const minimumLength = 3;
+  if (todoInput.value.trim().length < minimumLength) {
+    errorMessage.textContent = "To do must be at least 3 characters long";
+    errorMessage.classList.add("show");
+    setTimeout(() => {
+      hideErrorMessage();
+    }, 1000);
+  } else if (!todoInput.value) {
+    errorMessage.textContent = "To do cannot be empty";
+    errorMessage.classList.add("show");
+    setTimeout(() => {
+      hideErrorMessage();
+    }, 1000);
+  } else {
+    //create a new todo item object with the text and a unique ID (using timestamp)
+
+    todoList.appendChild(li);
+
+    li.appendChild(liCheckbox);
+    li.appendChild(todoText);
+    li.appendChild(liDeleteButton);
+    li.setAttribute("data-id", todoItemObject.id);
+  }
+
   liCheckbox.classList.add("todo-checkbox");
   liCheckbox.type = "checkbox";
   liDeleteButton.classList.add("delete-btn");
   liDeleteButton.textContent = "Delete";
-  todoList.appendChild(li);
-  li.appendChild(liCheckbox);
-  li.appendChild(todoText);
-  li.appendChild(liDeleteButton);
-  li.setAttribute("data-id", todoItemObject.id);
+  //error message handling
+
+  // Check if the todo text is long enough to be meaningful
+
+  // We need to clear any error messages from previous attempts so the user doesn't see old errors
+
   todoInput.value = "";
   liCheckbox.addEventListener("change", function () {
     if (liCheckbox.checked == true) {
@@ -70,8 +96,6 @@ function handleFormSubmit(event) {
 
   console.log(event.target);
   saveTodosToStorage();
-
-  event.preventDefault();
 }
 
 function saveTodosToStorage() {
@@ -88,4 +112,8 @@ function loadTodosFromStorage() {
     // Convert the JSON string back into an array
     todos = JSON.parse(storedTodos);
   }
+}
+
+function hideErrorMessage() {
+  errorMessage.classList.remove("show");
 }
